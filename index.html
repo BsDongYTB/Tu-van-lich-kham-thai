@@ -13,48 +13,81 @@
       --radius: 12px;
       --muted: #5f6b78;
     }
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:var(--bg);color:#111;-webkit-font-smoothing:antialiased}
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;padding:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:var(--bg);color:#111;-webkit-font-smoothing:antialiased}
 
-    /* Header nhỏ */
     header{
       width:100%;
       text-align:center;
       padding:12px 10px;
       background:transparent;
     }
-    header h1{ font-size:18px; font-weight:700; letter-spacing:-0.2px; }
+    header h1{ font-size:18px; font-weight:700; margin:0; }
 
-    /* Wrapper giữ chat full-height */
+    /* layout */
     .wrap{
       display:flex;
       flex-direction:column;
-      height:calc(100vh - 56px); /* phần còn lại sau header */
+      height:calc(100vh - 56px); /* header high ~56px */
       gap:8px;
       padding:8px;
     }
 
-    /* Khung chat chiếm không gian lớn */
     .chat-box{
+      position:relative;
       flex:1 1 auto;
       border-radius:12px;
       overflow:hidden;
-      box-shadow: 0 10px 30px rgba(16,24,40,0.08);
       background:var(--card);
       border:1px solid rgba(0,0,0,0.04);
+      box-shadow: 0 10px 30px rgba(16,24,40,0.08);
     }
-    .chat-box iframe{ width:100%; height:100%; border:0; display:block; }
 
-    /* Nút gọi cố định dưới cùng, giữa màn hình trên mobile */
+    .chat-frame {
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
+    }
+
+    /* fallback message shown when iframe fails */
+    .fallback {
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:linear-gradient(0deg, rgba(255,255,255,0.9), rgba(255,255,255,0.85));
+      text-align:center;
+      gap:12px;
+      flex-direction:column;
+      z-index:20;
+      visibility:hidden; /* shown by JS on error */
+      opacity:0;
+      transition:opacity .25s ease;
+    }
+    .fallback.show { visibility:visible; opacity:1; }
+
+    .fallback a.open-chat {
+      display:inline-block;
+      background:var(--accent);
+      color:#fff;
+      padding:12px 18px;
+      border-radius:10px;
+      text-decoration:none;
+      font-weight:700;
+    }
+
+    .fallback p { margin:0; color:var(--muted) }
+
+    /* call button fixed */
     .call-wrap{
       position:fixed;
       left:50%;
       transform:translateX(-50%);
       bottom:14px;
       z-index:60;
-      display:flex;
-      align-items:center;
-      gap:10px;
     }
     .call-btn{
       display:inline-flex;
@@ -71,7 +104,6 @@
     }
     .call-btn .icon{ width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.12) }
 
-    /* Desktop: căn giữa, nút sang phải */
     @media(min-width:900px){
       .wrap{ max-width:1000px; margin:0 auto; height:calc(100vh - 80px); padding:20px; }
       .call-wrap{ left:auto; right:18px; transform:none; }
@@ -85,21 +117,70 @@
 
   <main class="wrap" role="main">
     <div class="chat-box" aria-label="Chatbot tư vấn">
-      <!-- IFRAME DIFY (đã sử dụng link bạn cung cấp) -->
+      <!-- IFRAME (dùng link bạn cung cấp) -->
       <iframe
+        id="chat_iframe"
+        class="chat-frame"
         src="https://udify.app/chatbot/uSn1e6bw7BaT2K4M"
         title="Chatbot Tư Vấn Lịch Khám Thai"
         allow="microphone; camera; clipboard-write">
       </iframe>
+
+      <!-- Fallback UI (nút mở tab mới) -->
+      <div id="fallback" class="fallback" role="alert">
+        <p>Không thể nhúng chat trực tiếp. Bạn có thể mở chatbot trong tab mới.</p>
+        <a id="open_chat_btn" class="open-chat" href="https://udify.app/chatbot/uSn1e6bw7BaT2K4M" target="_blank" rel="noopener">Mở Chatbot Tư Vấn</a>
+      </div>
     </div>
   </main>
 
-  <!-- Nút gọi cố định (thay số nếu cần) -->
+  <!-- nút gọi cố định -->
   <div class="call-wrap" role="region" aria-label="Gọi tư vấn">
-    <a class="call-btn" href="tel:0123456789">
+    <a class="call-btn" href="tel:+84123456789">
       <span class="icon">📞</span>
       <span>Gọi tư vấn</span>
     </a>
   </div>
+
+  <script>
+    // Fallback strategy:
+    // - If iframe loads content (onload fires) => hide fallback.
+    // - If onload doesn't fire within TIMEOUT_MS => show fallback (covers cases where iframe blocked by X-Frame-Options or CSP).
+    (function(){
+      var iframe = document.getElementById('chat_iframe');
+      var fallback = document.getElementById('fallback');
+      var TIMEOUT_MS = 2500; // 2.5s - adjust if needed
+
+      var loaded = false;
+      iframe.addEventListener('load', function(){
+        loaded = true;
+        // hide fallback if any
+        fallback.classList.remove('show');
+      });
+
+      // after timeout, if not loaded, show fallback
+      setTimeout(function(){
+        if (!loaded) {
+          fallback.classList.add('show');
+        }
+      }, TIMEOUT_MS);
+
+      // Also, in case iframe is blocked silently, try to detect accessDenied to contentWindow
+      // (Access will throw if cross-origin in some browsers; handle safely)
+      setTimeout(function(){
+        try {
+          var cw = iframe.contentWindow;
+          // try read location.href — will throw for cross-origin; we ignore thrown error
+          var href = cw && cw.location && cw.location.href;
+          // if it exists and seems same-origin, hide fallback
+          if (href && href.indexOf('about:blank') === -1) {
+            fallback.classList.remove('show');
+          }
+        } catch(e){
+          // cross-origin access or blocked - already covered by initial timeout
+        }
+      }, TIMEOUT_MS + 500);
+    })();
+  </script>
 </body>
 </html>
