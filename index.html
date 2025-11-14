@@ -3,161 +3,66 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Chatbot Tư Vấn Lịch Khám Thai</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <title>Bệnh viện đa khoa Cửa Đông — Chatbot</title>
 
   <style>
     :root{
-      --bg: #e8f1ff;           /* MÀU XANH LAM NHẠT MỚI */
-      --card: #ffffff;
+      --bg: #e8f1ff;
+      --card: #fff;
       --accent: #0b6efd;
       --muted: #6b7280;
-      --maxw: 1100px;
-      --radius: 14px;
-      --container-padding: 24px;
+      --radius: 12px;
     }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;font-family:system-ui, -apple-system, "Segoe UI", Roboto, Arial;background:var(--bg);-webkit-font-smoothing:antialiased;color:#111}
 
-    *{box-sizing:border-box}
-    html,body{
-      height:100%; margin:0;
-      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-      background:var(--bg);
-      color:#111;
-      -webkit-font-smoothing:antialiased;
-    }
-
-    .page{
-      min-height:100vh;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
-      padding:48px 16px;
-    }
-
-    .site {
+    /* Header nhỏ */
+    header{
       width:100%;
-      max-width:var(--maxw);
-      margin:0 auto;
-      display:grid;
-      grid-template-columns: 1fr 420px;
-      gap:28px;
-      align-items:start;
+      text-align:center;
+      padding:14px 12px;
+      background:transparent;
+      position:relative;
+    }
+    header h1{
+      font-size:18px;
+      font-weight:700;
+      letter-spacing:-0.2px;
     }
 
-    @media (max-width:900px){
-      .site{ grid-template-columns: 1fr; }
-      .chat-wrap { order: 2; }
-    }
-
-    .hero {
-      background:#ffffffcc;
-      border-radius: var(--radius);
-      padding:28px;
-      box-shadow: 0 6px 18px rgba(20,20,50,0.06);
-      backdrop-filter:blur(4px);
-    }
-    h1 { margin:0 0 8px 0; font-size:28px; letter-spacing:-0.5px; }
-    .lead { color:var(--muted); margin-bottom:18px; line-height:1.5 }
-
-    .cards {
-      margin-top:18px;
+    /* Container chính: chat chiếm toàn bộ không gian còn lại */
+    .wrap{
       display:flex;
-      gap:12px;
-      flex-wrap:wrap;
+      flex-direction:column;
+      height:calc(100vh - 64px); /* header + some spacing */
+      padding: 8px;
+      gap:8px;
     }
-    .card {
-      background:var(--card);
+
+    .chat-box{
+      flex:1 1 auto;
       border-radius:12px;
-      padding:12px 14px;
-      box-shadow: 0 4px 12px rgba(16,24,40,0.04);
-      min-width:140px;
-      flex:1;
-    }
-    .card small { color:var(--muted); margin-bottom:6px; display:block }
-    .card b { font-size:14px }
-
-    .chat-wrap { position:relative; }
-
-    .chat-frame {
-      width:100%;
-      height:72vh;
-      min-height:520px;
-      border-radius:16px;
       overflow:hidden;
-      border:1px solid rgba(16,24,40,0.06);
+      box-shadow: 0 10px 30px rgba(16,24,40,0.08);
       background:var(--card);
-      box-shadow: 0 20px 50px rgba(16,24,40,0.10);
-    }
-    .chat-frame iframe{
-      width:100%; height:100%; border:0; display:block;
-    }
-
-    .chat-meta {
-      margin-top:10px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      font-size:14px;
-      color:var(--muted);
-    }
-    .logo {
-      display:flex; gap:10px; align-items:center;
-    }
-    .logo img{
-      width:36px; height:36px;
-      border-radius:8px;
       border:1px solid rgba(0,0,0,0.04);
-      object-fit:cover;
+    }
+    .chat-box iframe{
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
     }
 
-    a.button {
-      background:var(--accent); color:#fff;
-      padding:8px 12px; border-radius:10px;
-      text-decoration:none; font-weight:600; font-size:14px;
-      box-shadow:0 8px 20px rgba(11,110,253,0.15);
+    /* Nút gọi cố định ở dưới, responsive */
+    .call-wrap{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:14px;
+      z-index:60;
+      display:flex;
+      gap:10px;
+      align-items:center;
     }
-  </style>
-</head>
-
-<body>
-  <div class="page">
-    <div class="site">
-
-      <div>
-        <div class="hero">
-          <h1>Chatbot Tư Vấn Lịch Khám Thai</h1>
-          <p class="lead">Chatbot dựa trên dữ liệu bạn đã nạp. Hỗ trợ lịch khám, xét nghiệm, chuẩn bị sinh…</p>
-
-          <div class="cards">
-            <div class="card"><small>Mốc khám</small><b>6–8w, 11–13w, 20–22w…</b></div>
-            <div class="card"><small>Sàng lọc</small><b>NIPT, Double test, OGTT</b></div>
-            <div class="card"><small>Dấu hiệu</small><b>Cần khám ngay khi ra máu, đau nhiều</b></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="chat-wrap">
-        <div class="chat-frame">
-          <iframe
-            src="https://udify.app/chatbot/uSn1e6bw7BaT2K4M"
-            allow="microphone">
-          </iframe>
-        </div>
-
-        <div class="chat-meta">
-          <div class="logo">
-            <img src="Logo Cua Dong.png" alt="Logo">
-            <div>
-              <div style="font-weight:600">Bs Đông – Cửa Đông</div>
-              <div style="font-size:13px;">Chatbot tư vấn tự động</div>
-            </div>
-          </div>
-          <a class="button" href="tel:0123456789">Gọi tư vấn</a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</body>
-</html>
+    .call-btn{
