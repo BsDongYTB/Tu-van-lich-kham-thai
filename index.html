@@ -4,41 +4,37 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Bệnh viện đa khoa Cửa Đông — Chatbot</title>
-
+  <meta name="description" content="Chatbot tư vấn lịch khám thai - Bệnh viện đa khoa Cửa Đông" />
   <style>
     :root{
       --bg: #e8f1ff;
-      --card: #fff;
+      --card: #ffffff;
       --accent: #0b6efd;
-      --muted: #6b7280;
       --radius: 12px;
+      --muted: #5f6b78;
     }
     *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;font-family:system-ui, -apple-system, "Segoe UI", Roboto, Arial;background:var(--bg);-webkit-font-smoothing:antialiased;color:#111}
+    html,body{height:100%;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:var(--bg);color:#111;-webkit-font-smoothing:antialiased}
 
     /* Header nhỏ */
     header{
       width:100%;
       text-align:center;
-      padding:14px 12px;
+      padding:12px 10px;
       background:transparent;
-      position:relative;
     }
-    header h1{
-      font-size:18px;
-      font-weight:700;
-      letter-spacing:-0.2px;
-    }
+    header h1{ font-size:18px; font-weight:700; letter-spacing:-0.2px; }
 
-    /* Container chính: chat chiếm toàn bộ không gian còn lại */
+    /* Wrapper giữ chat full-height */
     .wrap{
       display:flex;
       flex-direction:column;
-      height:calc(100vh - 64px); /* header + some spacing */
-      padding: 8px;
+      height:calc(100vh - 56px); /* phần còn lại sau header */
       gap:8px;
+      padding:8px;
     }
 
+    /* Khung chat chiếm không gian lớn */
     .chat-box{
       flex:1 1 auto;
       border-radius:12px;
@@ -47,14 +43,9 @@
       background:var(--card);
       border:1px solid rgba(0,0,0,0.04);
     }
-    .chat-box iframe{
-      width:100%;
-      height:100%;
-      border:0;
-      display:block;
-    }
+    .chat-box iframe{ width:100%; height:100%; border:0; display:block; }
 
-    /* Nút gọi cố định ở dưới, responsive */
+    /* Nút gọi cố định dưới cùng, giữa màn hình trên mobile */
     .call-wrap{
       position:fixed;
       left:50%;
@@ -62,7 +53,53 @@
       bottom:14px;
       z-index:60;
       display:flex;
-      gap:10px;
       align-items:center;
+      gap:10px;
     }
     .call-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      background:var(--accent);
+      color:#fff;
+      padding:12px 16px;
+      border-radius:999px;
+      text-decoration:none;
+      font-weight:700;
+      font-size:15px;
+      box-shadow:0 8px 20px rgba(11,110,253,0.16);
+    }
+    .call-btn .icon{ width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.12) }
+
+    /* Desktop: căn giữa, nút sang phải */
+    @media(min-width:900px){
+      .wrap{ max-width:1000px; margin:0 auto; height:calc(100vh - 80px); padding:20px; }
+      .call-wrap{ left:auto; right:18px; transform:none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Bệnh viện đa khoa Cửa Đông</h1>
+  </header>
+
+  <main class="wrap" role="main">
+    <div class="chat-box" aria-label="Chatbot tư vấn">
+      <!-- IFRAME DIFY (đã sử dụng link bạn cung cấp) -->
+      <iframe
+        src="https://udify.app/chatbot/uSn1e6bw7BaT2K4M"
+        title="Chatbot Tư Vấn Lịch Khám Thai"
+        allow="microphone; camera; clipboard-write">
+      </iframe>
+    </div>
+  </main>
+
+  <!-- Nút gọi cố định (thay số nếu cần) -->
+  <div class="call-wrap" role="region" aria-label="Gọi tư vấn">
+    <a class="call-btn" href="tel:0123456789">
+      <span class="icon">📞</span>
+      <span>Gọi tư vấn</span>
+    </a>
+  </div>
+</body>
+</html>
